@@ -40,6 +40,8 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_BOOTLOADER_BOARD_NAME := inc
 TARGET_SPECIFIC_HEADER_PATH := device/htc/inc/include
 
+TARGET_SPECIFIC_HEADER_PATH := device/htc/inc/include
+
 # Legacy support flags
 BOARD_USE_LEGACY_TRACKPAD := true
 
