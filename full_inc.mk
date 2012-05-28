@@ -14,10 +14,13 @@
 # limitations under the License.
 #
 
-#
-# This is the product configuration for a generic incredible,
-# not specialized for any geography.
-#
+# Overlay / Locale
+DEVICE_PACKAGE_OVERLAYS := device/htc/inc/overlay
+PRODUCT_LOCALES := en
+
+# Inc uses high-density artwork where available
+PRODUCT_AAPT_CONFIG := normal hdpi
+PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us.mk)
@@ -27,45 +30,35 @@ PRODUCT_COPY_FILES += \
     device/htc/inc/prebuilt/root/init.inc.usb.rc:root/init.inc.usb.rc \
     device/htc/inc/prebuilt/root/ueventd.inc.rc:root/ueventd.inc.rc
 
-$(call inherit-product-if-exists, vendor/htc/inc/inc-vendor.mk)
-
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.com.android.wifi-watchlist=GoogleGuest \
 	ro.error.receiver.system.apps=com.google.android.feedback \
 	ro.setupwizard.enterprise_mode=1 \
 	ro.com.google.clientidbase=android-verizon \
 	ro.com.google.locationfeatures=1 \
-	ro.url.legal=http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html \
-	ro.url.legal.android_privacy=http://www.google.com/intl/%s/mobile/android/basic/privacy.html \
-	ro.cdma.home.operator.numeric=310004 \
 	ro.cdma.home.operator.alpha=Verizon \
+	ro.cdma.home.operator.numeric=310012 \
 	ro.cdma.homesystem=64,65,76,77,78,79,80,81,82,83 \
 	ro.cdma.data_retry_config=default_randomization=2000,0,0,120000,180000,540000,960000 \
 	ro.config.vc_call_vol_steps=7 \
 	ro.cdma.otaspnumschema=SELC,1,80,99 \
 	ro.telephony.call_ring.multiple=false \
 	ro.telephony.call_ring.delay=3000 \
-	ro.url.safetylegal=http://www.htc.com/staticfiles/Support/legal/?model=A855 \
 	ro.setupwizard.enable_bypass=1 \
-	dalvik.vm.lockprof.threshold=500 \
 	ro.media.dec.jpeg.memcap=20000000 \
 	ro.media.enc.jpeg.quality=95,85,70
 
-# Dalvik properties - read from AndroidRuntime
-# dexop-flags:
-# "v="  verification 'n': none, 'r': remote, 'a': all
-# "o="  optimization 'n': none, 'v': verified, 'a': all, 'f': full
-# "m=y" register map
+# Dalvik properties
+# dexop-flags: "v=" n|r|a, "o=" n|v|a|f, "m=y" register map
+# v=verify o=optimize: n=none r=remote a=all f=full v=verified
 PRODUCT_PROPERTY_OVERRIDES += \
-    dalvik.vm.dexopt-flags=v=n,o=v,m=y \
-    dalvik.vm.checkjni=false \
-    dalvik.vm.heapstartsize=5m \
-    dalvik.vm.heapgrowthlimit=48m \
-    dalvik.vm.heapsize=128m
+    dalvik.vm.dexopt-flags=m=y \
+    dalvik.vm.checkjni=false
+
+# Default heap settings for 512mb device
+include frameworks/base/build/phone-hdpi-512-dalvik-heap.mk
+
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
-
-DEVICE_PACKAGE_OVERLAYS += device/htc/inc/overlay
 
 PRODUCT_COPY_FILES += \
     frameworks/base/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
@@ -94,6 +87,14 @@ PRODUCT_COPY_FILES += \
 # Keymap
 PRODUCT_COPY_FILES += \
     device/htc/inc/prebuilt/usr/keychars/incrediblec-keypad.kcm.bin:system/usr/keychars/incrediblec-keypad.kcm.bin
+
+# sysctl parameters
+PRODUCT_COPY_FILES += \
+    device/htc/inc/prebuilt/etc/sysctl.conf:system/etc/sysctl.conf
+
+# non-rotational init.d script
+PRODUCT_COPY_FILES += \
+    device/htc/inc/prebuilt/etc/init.d/02nonrot:system/etc/init.d/02nonrot
 
 # media config xml file
 PRODUCT_COPY_FILES += \
@@ -126,7 +127,7 @@ PRODUCT_COPY_FILES += \
 # Packages needed for Inc
 #
 # Sensors
-PRODUCT_PACKAGES := \
+PRODUCT_PACKAGES += \
     com.android.future.usb.accessory \
     gps.inc \
     lights.inc \
@@ -142,7 +143,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     copybit.qsd8k \
     gralloc.qsd8k \
-    hwcomposer.default \
     hwcomposer.qsd8k \
     libgenlock \
     libmemalloc \
@@ -162,13 +162,6 @@ PRODUCT_PROPERTY_OVERRIDES += debug.sf.hw=1
 # Enable copybit composition
 PRODUCT_PROPERTY_OVERRIDES += debug.composition.type=mdp
 
-# USB
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mass_storage
-
-# we have enough storage space to hold precise GC data
-PRODUCT_TAGS += dalvik.gc.type-precise
-
 # Force 2 buffers since gralloc defaults to 3 (we only have 2)
 PRODUCT_PROPERTY_OVERRIDES += debug.gr.numframebuffers=2
 
@@ -185,11 +178,8 @@ ADDITIONAL_DEFAULT_PROPERTIES += \
     persist.sys.usb.config=mass_storage \
     persist.service.adb.enable=1
 
-PRODUCT_LOCALES += en
-
-# Inc uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal hdpi
-PRODUCT_AAPT_PREF_CONFIG := hdpi
+# Set dirty_ratio for UMS
+PRODUCT_PROPERTY_OVERRIDES += ro.vold.umsdirtyratio=20
 
 ifeq ($(TARGET_PREBUILT_KERNEL),)
     LOCAL_KERNEL := device/htc/inc/prebuilt/root/kernel

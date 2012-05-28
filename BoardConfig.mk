@@ -35,15 +35,21 @@ TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
 
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
-TARGET_ARCH_VARIANT := armv7-a-neon
-ARCH_ARM_HAVE_TLS_REGISTER := true
-TARGET_BOOTLOADER_BOARD_NAME := inc
-TARGET_SPECIFIC_HEADER_PATH := device/htc/inc/include
 
+TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_ARCH_VARIANT_CPU := cortex-a8
+TARGET_ARCH_VARIANT_FPU := neon
+
+ARCH_ARM_HAVE_TLS_REGISTER := true
+ARCH_ARM_HAVE_VFP := true
+
+TARGET_BOOTLOADER_BOARD_NAME := inc
 TARGET_SPECIFIC_HEADER_PATH := device/htc/inc/include
 
 # Legacy support flags
 BOARD_USE_LEGACY_TRACKPAD := true
+
+BOARD_HAS_SCREEN_OFF_FLICKER := true
 
 # Wifi related defines
 BOARD_WPA_SUPPLICANT_DRIVER      := WEXT
@@ -51,12 +57,14 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wext
 WPA_SUPPLICANT_VERSION           := VER_0_8_X
 BOARD_WLAN_DEVICE                := bcm4329
 WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/bcm4329.ko"
-WIFI_DRIVER_FW_PATH_STA          := "/vendor/firmware/fw_bcm4329.bin"
-WIFI_DRIVER_FW_PATH_AP           := "/vendor/firmware/fw_bcm4329_apsta.bin"
-WIFI_DRIVER_MODULE_ARG           := "firmware_path=/vendor/firmware/fw_bcm4329.bin nvram_path=/proc/calibration"
+WIFI_DRIVER_FW_PATH_STA          := "/system/vendor/firmware/fw_bcm4329.bin"
+WIFI_DRIVER_FW_PATH_AP           := "/system/vendor/firmware/fw_bcm4329_apsta.bin"
+WIFI_DRIVER_MODULE_ARG           := "iface_name=wlan firmware_path=/system/vendor/firmware/fw_bcm4329.bin nvram_path=/proc/calibration"
 WIFI_DRIVER_MODULE_NAME          := "bcm4329"
 
 BOARD_USES_GENERIC_AUDIO := false
+# prevent breakage from QCOM_HARDWARE in system/core/include/system/audio.h
+COMMON_GLOBAL_CFLAGS += -DLEGACY_AUDIO_COMPAT
 
 BOARD_KERNEL_CMDLINE := no_console_suspend=1
 BOARD_KERNEL_BASE := 0x20000000
@@ -94,28 +102,20 @@ TARGET_USE_OVERLAY := false
 TARGET_HAVE_BYPASS := false
 TARGET_USES_C2D_COMPOSITION := false
 
-# Try to use ASHMEM if possible (when non-MDP composition is used)
-# If enabled, set debug.sf.hw=1 in system.prop
-# Disabling for now since pmem and mdp seem to work fine
-#TARGET_GRALLOC_USES_ASHMEM := true
+# Allow fallback to ashmem
+TARGET_GRALLOC_USES_ASHMEM := true
 
-# Flags present in CAF but not Evervolv yet(unsure of purpose)
-#HAVE_ADRENO200_SOURCE := true
-#HAVE_ADRENO200_SC_SOURCE := true
-#HAVE_ADRENO200_FIRMWARE := true
-#BOARD_USES_QCNE := true
-# Unsure if these flags do anything but others use them
-#BOARD_USE_QCOM_PMEM := true
-#BOARD_USES_ADRENO_200 := true
-#TARGET_HARDWARE_3D := false
 # Debugging egl
 COMMON_GLOBAL_CFLAGS += -DEGL_TRACE
+
+#BOARD_USE_QCOM_PMEM := true
+#TARGET_HARDWARE_3D := false
 
 TARGET_FORCE_CPU_UPLOAD := true
 BOARD_USES_QCOM_HARDWARE := true
 BOARD_USES_QCOM_LIBS := true
 
-TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/devices/platform/usb_mass_storage/lun0/file
+TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/devices/platform/usb_mass_storage/lun%d/file
 
 #BOARD_USE_FROYO_LIBCAMERA := true
 
