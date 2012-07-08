@@ -19,8 +19,8 @@ DEVICE_PACKAGE_OVERLAYS := device/htc/inc/overlay
 PRODUCT_LOCALES := en
 
 # Inc uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal hdpi
-PRODUCT_AAPT_PREF_CONFIG := hdpi
+PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
+PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us.mk)
